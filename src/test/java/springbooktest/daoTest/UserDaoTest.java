@@ -9,6 +9,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+import springbook.user.dao.NUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
@@ -20,7 +21,7 @@ public class UserDaoTest {
 
     @Before
     public void setting(){
-        userDao = new UserDao();
+        userDao = new NUserDao();
     }
 
     @Test

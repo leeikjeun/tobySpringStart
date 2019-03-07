@@ -18,15 +18,10 @@ import java.sql.*;
 * 3. 리소스 리턴(connect, statement) --> 공용 리소스 왜(DB를 이 곳 한 클래스에서만 사용하지 않기 때문!!)
 * */
 
-public class UserDao {
+public abstract class UserDao {
 
     //메소드 추출기능 기법
-    private Connection getConnection() throws ClassNotFoundException, SQLException {
-        Class.forName("com.mysql.jdbc.Driver");
-        return DriverManager.getConnection(
-                "jdbc:mysql://localhost/spring", "root", "as0109247"
-        );
-    }
+    public abstract Connection getConnection() throws ClassNotFoundException, SQLException;
 
     public void add(User user) throws ClassNotFoundException, SQLException {
         Connection c = getConnection();
