@@ -20,22 +20,14 @@ import java.sql.*;
 
 public class UserDao {
 
-    /*
-       관심사에 따라서 분리한 오브젝트는 제각기 독특한 변화의 특징이 있다
-       1. 데이터 엑세스 로직을 어떻게 만들 것인가 --> 어떤 테이블? 어떤 필드 이름??
-       2. DB연결을 어떤 방법으로 할 것인가 --> JDBC API사용 or DB전용 API 사용?
-
-       관심사가 다른 두가지 코드를 좀더 화끈하게 분리!!
-     */
-
-    private SimpleConnectionMaker simpleConnectionMaker;
+    private ConnectionMaker connectionMaker;
 
     public UserDao(){
-        simpleConnectionMaker = new SimpleConnectionMaker();
+        connectionMaker = new NUserDao(); //여기서 N사의 userDAO가나옴;;
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "insert into users(id, name, password) VALUES (?,?,?)"
@@ -51,7 +43,7 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        Connection c = simpleConnectionMaker.getConnection();
+        Connection c = connectionMaker.getConnection();
 
         PreparedStatement ps = c.prepareStatement(
                 "SELECT id, name, password FROM users WHERE id = ?"
