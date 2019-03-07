@@ -9,7 +9,7 @@ import java.sql.SQLException;
  * 템플릿 메소드 패턴을 이용하여 Connection 타입을 결정함
  *
  */
-public class NUserDao implements ConnectionMaker{
+public class NConnectionMaker implements ConnectionMaker{
 
     public Connection getConnection() throws ClassNotFoundException, SQLException {
         Class.forName("com.mysql.jdbc.Driver");
