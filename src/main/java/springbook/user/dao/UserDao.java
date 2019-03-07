@@ -12,14 +12,6 @@ import java.sql.*;
  *  기초 관심사 분리
  */
 
-/*
-    관계설정 책임의 분리
-    1.인터페이스를 통하여 UserDao와 ConnectionMaker를 분리하였는데도 인터페이스뿐만 아니라 구체적인 구현 클래스를 알아야함
-    2.UserDao 변경 없이는 DB 커넥션 기능의 확장이 자유롭지 못함
-
-    따라서 구현 클래스에 대한 책임을 밖으로 돌림림
-    책임을 넘김으로써 UserDao는 데이터 엑세스 작업을 위해 SQL을 생성하고 이를 실행하는 데만 집중
- */
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
