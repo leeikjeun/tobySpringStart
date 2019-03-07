@@ -30,7 +30,11 @@ public class UserDaoTest {
         user.setName("testName");
         user.setPassword("testPass");
 
-        userDao.add(user);
+        User checkUser = userDao.get("testId123");
+
+        assertThat(user.getId(),is(checkUser.getId()));
+        assertThat(user.getName(),is(checkUser.getName()));
+        assertThat(user.getPassword(),is(checkUser.getPassword()));
     }
 
     @Test
@@ -40,11 +44,7 @@ public class UserDaoTest {
         user.setName("testName");
         user.setPassword("testPass");
 
-        User checkUser = userDao.get("testId123");
-
-        assertThat(user.getId(),is(checkUser.getId()));
-        assertThat(user.getName(),is(checkUser.getName()));
-        assertThat(user.getPassword(),is(checkUser.getPassword()));
+        userDao.add(user);
 
     }
 
