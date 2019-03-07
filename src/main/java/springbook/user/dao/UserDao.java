@@ -12,18 +12,20 @@ import java.sql.*;
  *  기초 관심사 분리
  */
 
-/*현재 userDao 관심 사항
-* 1. DB와 연결을 위한 커넥션을 어떻게 가져올까?(DB 쓰고, 어떤 드라이버를 사용?, 어떤 로그인 정보, 커넥션을 생성 방법 등)
-* 2. DB에 보낼 SQL 문장을 담을 Stetement를 만들고 실행하는 것
-* 3. 리소스 리턴(connect, statement) --> 공용 리소스 왜(DB를 이 곳 한 클래스에서만 사용하지 않기 때문!!)
-* */
+/*
+    관계설정 책임의 분리
+    1.인터페이스를 통하여 UserDao와 ConnectionMaker를 분리하였는데도 인터페이스뿐만 아니라 구체적인 구현 클래스를 알아야함
+    2.UserDao 변경 없이는 DB 커넥션 기능의 확장이 자유롭지 못함
 
+    따라서 구현 클래스에 대한 책임을 밖으로 돌림림
+    책임을 넘김으로써 UserDao는 데이터 엑세스 작업을 위해 SQL을 생성하고 이를 실행하는 데만 집중
+ */
 public class UserDao {
 
     private ConnectionMaker connectionMaker;
 
-    public UserDao(){
-        connectionMaker = new NUserDao(); //여기서 N사의 userDAO가나옴;;
+    public UserDao(ConnectionMaker connectionMaker){
+        this.connectionMaker = connectionMaker;
     }
 
     public void add(User user) throws ClassNotFoundException, SQLException {
