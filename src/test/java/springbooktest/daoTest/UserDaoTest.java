@@ -21,7 +21,7 @@ public class UserDaoTest {
 
     @Before
     public void setting(){
-        userDao = new NUserDao();
+        userDao = new UserDao();
     }
 
     @Test
