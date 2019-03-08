@@ -9,8 +9,9 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.context.ApplicationContext;
+import org.springframework.context.annotation.AnnotationConfigApplicationContext;
 import springbook.user.dao.DaoFactory;
-import springbook.user.dao.NConnectionMaker;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
@@ -19,11 +20,12 @@ import java.sql.SQLException;
 public class UserDaoTest {
 
     UserDao userDao;
+    ApplicationContext context;
 
     @Before
     public void setting(){
-        DaoFactory daoFactory = new DaoFactory();
-        userDao = daoFactory.userDao();
+        context = new AnnotationConfigApplicationContext(DaoFactory.class);
+        userDao = context.getBean("userDao", UserDao.class);
     }
 
     @Test
