@@ -5,13 +5,16 @@
 
     <bean id="userDao" class="springbook.user.dao.UserDao">
         <!--<property name="connectionMaker" ref="connectionMaker" />-->
-        <property name="jdbcContext" ref="jdbcContext" />
+        <property name="jdbcTemplate" ref="jdbcTemplate" />
 
     </bean>
 
-    <bean id="jdbcContext" class="springbook.user.dao.JdbcContext">
+    <bean id="jdbcTemplate" class="org.springframework.jdbc.core.JdbcTemplate">
         <property name="dataSource" ref="dataSource" />
     </bean>
+    <!--<bean id="jdbcContext" class="springbook.user.dao.JdbcContext">-->
+        <!--<property name="dataSource" ref="dataSource" />-->
+    <!--</bean>-->
 
     <bean id="connectionMaker" class="springbook.user.dao.NConnectionMaker" />
 

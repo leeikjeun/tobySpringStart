@@ -1,5 +1,7 @@
 package springbook.user.dao;
 
+import org.springframework.dao.DataAccessException;
+import org.springframework.jdbc.core.JdbcTemplate;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
@@ -16,59 +18,61 @@ import java.util.jar.JarEntry;
 
 public class UserDao {
 
-    JdbcContext jdbcContext;
+    private JdbcTemplate jdbcTemplate;
 
-    public void setJdbcContext(JdbcContext jdbcContext) {
-        this.jdbcContext = jdbcContext;
+    public void setJdbcTemplate(JdbcTemplate jdbcTemplate) {
+        this.jdbcTemplate = jdbcTemplate;
     }
 
     // 변하는것과 변하지 않는 것
     public void add(User user) throws ClassNotFoundException, SQLException {
-//        insert into users(id, name, password) VALUES (?,?,?)
-        StatementStrategy strategy = c -> {
-            PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) VALUES (?,?,?)");
-            ps.setString(1,user.getId());
-            ps.setString(2,user.getName());
-            ps.setString(3,user.getPassword());
-            return ps;
-        };
-        jdbcContext.jdbcContextWithStatementStrategy(strategy);
+        String sql = "insert into users(id, name, password) VALUES (?,?,?)";
+        Object[] parms = new Object[]{user.getId(),user.getName(),user.getPassword()};
+
+        this.jdbcTemplate.update(sql,parms);
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
-        StatementStrategy strategy = c -> {
-            PreparedStatement ps = c.prepareStatement("SELECT id, name, password FROM users WHERE id = ?");
-            ps.setString(1,id);
-            return ps;
-        };
 
-        return jdbcContext.getUserJdbcStatement(strategy);
+        String sql = "SELECT id, name, password FROM users WHERE id = ?";
+        Object[] parms = new Object[]{id};
+        User user1 = null;
+        try {
+            user1 = jdbcTemplate.queryForObject(sql,parms,(resultset, i) -> {
+               User user = new User();
+               user.setId(resultset.getString("id"));
+               user.setName(resultset.getString("name"));
+               user.setPassword(resultset.getString("password"));
+               return user;
+            });
+        } catch (DataAccessException e) {
+            e.printStackTrace();
+        }
+
+        return user1;
     }
 
     public int getCount(){
-        StatementStrategy st = c -> {
-            PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM users");
-            return ps;
-        };
+        String sql = "SELECT COUNT(*) FROM users";
 
-        return jdbcContext.getCountJdbcStatement(st);
+        int count = jdbcTemplate.queryForObject(sql,new Object[0],(resultset,i) -> {
+            int count1 = resultset.getInt(1);
+            return count1;
+        });
+
+        return count;
     }
 
     public void deleteUser(String id){
-        StatementStrategy st = connetion -> {
-            PreparedStatement ps = connetion.prepareStatement("DELETE from users where id = ?");
-            ps.setString(1,id);
-            return ps;
-        };
+        String sql = "delete from users where id = ?";
+        Object[] parms = new Object[]{id};
 
-        jdbcContext.jdbcContextWithStatementStrategy(st);
+        jdbcTemplate.update(sql,parms);
     }
 
     public void deleteAll(){
-        StatementStrategy strategy = connetion -> {
-            PreparedStatement ps = connetion.prepareStatement("DELETE FROM users");
-            return ps;
-        };
-        jdbcContext.jdbcContextWithStatementStrategy(strategy);
+        String sql = "delete from users";
+
+        jdbcTemplate.update(sql);
     }
 }
