@@ -2,10 +2,13 @@ package springbook.user.dao;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import org.springframework.jdbc.core.RowMapper;
 import springbook.user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.ArrayList;
+import java.util.List;
 import java.util.jar.JarEntry;
 
 /**
@@ -74,5 +77,27 @@ public class UserDao {
         String sql = "delete from users";
 
         jdbcTemplate.update(sql);
+    }
+
+    public List<User> getAll() {
+        String sql = "select * from users";
+
+        return jdbcTemplate.query(sql,(resultSet,i) ->{
+           User user = new User();
+           user.setId(resultSet.getString("id"));
+           user.setName(resultSet.getString("name"));
+           user.setPassword(resultSet.getString("password"));
+           return user;
+        });
+    }
+
+
+    public void update(User user) {
+//        UPDATE tablename SET filedA='456' WHERE test='123' LIMIT 10;
+
+        String sql = "UPDATE users set name = ?, password = ? where id = ?";
+        Object[] parms = new Object[]{user.getName(), user.getPassword(), user.getId()};
+
+        jdbcTemplate.update(sql, parms);
     }
 }

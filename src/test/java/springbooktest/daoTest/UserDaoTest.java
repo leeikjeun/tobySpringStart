@@ -15,6 +15,7 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
+import java.util.List;
 
 public class UserDaoTest {
 
@@ -101,6 +102,55 @@ public class UserDaoTest {
         assertThat(1,is(1));
     }
 
+    @Test
+    public void getAll() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+
+        User user = new User();
+        user.setId("testId123");
+        user.setName("testName");
+        user.setPassword("testPass");
+
+        User user2 = new User();
+        user2.setId("testId1234");
+        user2.setName("testName1");
+        user2.setPassword("testPass2");
+
+        userDao.add(user);
+        userDao.add(user2);
+
+        List<User> list = userDao.getAll();
+
+        assertThat(user.getId(),is(list.get(0).getId()));
+        assertThat(user.getName(),is(list.get(0).getName()));
+        assertThat(user.getPassword(),is(list.get(0).getPassword()));
+
+        assertThat(user2.getId(),is(list.get(1).getId()));
+        assertThat(user2.getName(),is(list.get(1).getName()));
+        assertThat(user2.getPassword(),is(list.get(1).getPassword()));
+    }
+
+    @Test
+    public void update() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+
+        User user = new User();
+        user.setId("testId123");
+        user.setName("testName");
+        user.setPassword("testPass");
+
+        userDao.add(user);
+
+        user.setName("test123");
+        user.setPassword("testpa123");
+
+        userDao.update(user);
+
+        User test = userDao.get(user.getId());
+
+        assertThat(test.getName(),is(user.getName()));
+        assertThat(test.getPassword(),is(user.getPassword()));
+    }
 
 
 }
