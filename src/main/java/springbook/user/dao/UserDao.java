@@ -35,6 +35,43 @@ public class UserDao {
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
+        StatementStrategy strategy = c -> {
+            PreparedStatement ps = c.prepareStatement("SELECT id, name, password FROM users WHERE id = ?");
+            ps.setString(1,id);
+            return ps;
+        };
+
+        return getUserJdbcStatement(strategy);
+    }
+
+    public int getCount(){
+        StatementStrategy st = c -> {
+            PreparedStatement ps = c.prepareStatement("SELECT COUNT(*) FROM users");
+            return ps;
+        };
+
+        return getCountJdbcStatement(st);
+    }
+
+    public void deleteUser(String id){
+        StatementStrategy st = connetion -> {
+            PreparedStatement ps = connetion.prepareStatement("DELETE from users where id = ?");
+            ps.setString(1,id);
+            return ps;
+        };
+
+        jdbcContextWithStatementStrategy(st);
+    }
+
+    public void deleteAll(){
+        StatementStrategy strategy = connetion -> {
+            PreparedStatement ps = connetion.prepareStatement("DELETE FROM users");
+            return ps;
+        };
+        jdbcContextWithStatementStrategy(strategy);
+    }
+
+    private User getUserJdbcStatement(StatementStrategy strategy) {
         User user = null;
         Connection c = null;
         PreparedStatement ps = null;
@@ -42,9 +79,7 @@ public class UserDao {
         try {
             c = dataSource.getConnection();
 
-
-            StatementStrategy statementStrategy = new GetUserStatementStrategy(id);
-            ps = statementStrategy.makeStatement(c);
+            ps = strategy.makeStatement(c);
 
             rs = ps.executeQuery();
             rs.next();
@@ -85,14 +120,13 @@ public class UserDao {
         return user;
     }
 
-    public int getCount(){
+    private int getCountJdbcStatement(StatementStrategy statementStratygy) {
         int count = 0;
         Connection c = null;
         PreparedStatement ps = null;
         ResultSet rs = null;
         try {
             c = dataSource.getConnection();
-            StatementStrategy statementStratygy = new GetCountStatementStrategy();
             ps = statementStratygy.makeStatement(c);
 
             rs = ps.executeQuery();
@@ -125,26 +159,7 @@ public class UserDao {
                 }
             }
         }
-
         return count;
-    }
-
-    public void deleteUser(String id){
-        StatementStrategy st = connetion -> {
-            PreparedStatement ps = connetion.prepareStatement("DELETE from users where id = ?");
-            ps.setString(1,id);
-            return ps;
-        };
-
-        jdbcContextWithStatementStrategy(st);
-    }
-
-    public void deleteAll(){
-        StatementStrategy strategy = connetion -> {
-            PreparedStatement ps = connetion.prepareStatement("DELETE FROM users");
-            return ps;
-        };
-        jdbcContextWithStatementStrategy(strategy);
     }
 
     private void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) {
@@ -174,6 +189,7 @@ public class UserDao {
             }
         }
     }
+
 
 
 
