@@ -35,7 +35,7 @@ public class UserDaoTest {
         user.setId("testId123");
         user.setName("testName");
         user.setPassword("testPass");
-
+        userDao.add(user);
         User checkUser = userDao.get("testId123");
 
         assertThat(user.getId(),is(checkUser.getId()));
@@ -46,14 +46,34 @@ public class UserDaoTest {
     @Test
     public void userAddTest() throws SQLException, ClassNotFoundException {
         User user = new User();
-        user.setId("testId1234");
+        user.setId("testId123");
         user.setName("testName");
         user.setPassword("testPass");
 
         userDao.add(user);
-
     }
 
+    @Test
+    public void getCountTest() throws SQLException, ClassNotFoundException {
+        userDao.deleteAll();
+
+        User user = new User();
+        user.setId("testId123");
+        user.setName("testName");
+        user.setPassword("testPass");
+
+        User user2 = new User();
+        user2.setId("testId1234");
+        user2.setName("testName1");
+        user2.setPassword("testPass2");
+
+        userDao.add(user);
+        userDao.add(user2);
+
+        int count = userDao.getCount();
+
+        assertThat(2,is(count));
+    }
 
 
 
