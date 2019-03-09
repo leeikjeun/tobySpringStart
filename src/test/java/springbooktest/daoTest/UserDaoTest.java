@@ -10,8 +10,7 @@ import static org.hamcrest.MatcherAssert.assertThat;
 import org.junit.Before;
 import org.junit.Test;
 import org.springframework.context.ApplicationContext;
-import org.springframework.context.annotation.AnnotationConfigApplicationContext;
-import springbook.user.dao.DaoFactory;
+import org.springframework.context.support.GenericXmlApplicationContext;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.User;
 
@@ -24,8 +23,10 @@ public class UserDaoTest {
 
     @Before
     public void setting(){
-        context = new AnnotationConfigApplicationContext(DaoFactory.class);
-        userDao = context.getBean("userDao", UserDao.class);
+//        context = new AnnotationConfigApplicationContext(DaoFactory.class);
+//        userDao = context.getBean("userDao", UserDao.class);
+        context = new GenericXmlApplicationContext("applicationContext.xml");
+        userDao = context.getBean("userDao",UserDao.class);
     }
 
     @Test
