@@ -21,42 +21,17 @@ public class UserDao {
         this.dataSource = dataSource;
     }
 
-    // 예외처리가 필요한 이유!!
-    // 예외처리를 하지 않을때 미처 반환되지 못한 커넥션이 계속쌓이게 되면 어느 순간에 커넥션퓰에 여유가 없어지고 리소스가 모자란다는 심각한 오류가 발생할 수 있다
+    // 변하는것과 변하지 않는 것
     public void add(User user) throws ClassNotFoundException, SQLException {
-        Connection c = null;
-        PreparedStatement ps = null;
-        try {
-            c = dataSource.getConnection();
-
-            ps = c.prepareStatement(
-                    "insert into users(id, name, password) VALUES (?,?,?)"
-            );
-            ps.setString(1, user.getId());
-            ps.setString(2, user.getName());
-            ps.setString(3, user.getPassword());
-
-            ps.executeUpdate();
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
+//        insert into users(id, name, password) VALUES (?,?,?)
+        StatementStrategy strategy = c -> {
+            PreparedStatement ps = c.prepareStatement("insert into users(id, name, password) VALUES (?,?,?)");
+            ps.setString(1,user.getId());
+            ps.setString(2,user.getName());
+            ps.setString(3,user.getPassword());
+            return ps;
+        };
+        jdbcContextWithStatementStrategy(strategy);
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -67,11 +42,9 @@ public class UserDao {
         try {
             c = dataSource.getConnection();
 
-            ps = c.prepareStatement(
-                    "SELECT id, name, password FROM users WHERE id = ?"
-            );
 
-            ps.setString(1, id);
+            StatementStrategy statementStrategy = new GetUserStatementStrategy(id);
+            ps = statementStrategy.makeStatement(c);
 
             rs = ps.executeQuery();
             rs.next();
@@ -119,10 +92,8 @@ public class UserDao {
         ResultSet rs = null;
         try {
             c = dataSource.getConnection();
-
-            ps = c.prepareStatement(
-                    "SELECT count(*) FROM users"
-            );
+            StatementStrategy statementStratygy = new GetCountStatementStrategy();
+            ps = statementStratygy.makeStatement(c);
 
             rs = ps.executeQuery();
             rs.next();
@@ -158,15 +129,30 @@ public class UserDao {
         return count;
     }
 
+    public void deleteUser(String id){
+        StatementStrategy st = connetion -> {
+            PreparedStatement ps = connetion.prepareStatement("DELETE from users where id = ?");
+            ps.setString(1,id);
+            return ps;
+        };
+
+        jdbcContextWithStatementStrategy(st);
+    }
+
     public void deleteAll(){
+        StatementStrategy strategy = connetion -> {
+            PreparedStatement ps = connetion.prepareStatement("DELETE FROM users");
+            return ps;
+        };
+        jdbcContextWithStatementStrategy(strategy);
+    }
+
+    private void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) {
         Connection c = null;
         PreparedStatement ps = null;
         try {
             c = dataSource.getConnection();
-
-            ps = c.prepareStatement(
-                    "DELETE from users"
-            );
+            ps = statementStrategy.makeStatement(c);
             ps.executeUpdate();
         } catch (SQLException e) {
             e.printStackTrace();
@@ -187,7 +173,9 @@ public class UserDao {
                 }
             }
         }
-
     }
+
+
+
 
 }
