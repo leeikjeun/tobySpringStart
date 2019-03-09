@@ -46,7 +46,7 @@ public class UserDaoTest {
     @Test
     public void userAddTest() throws SQLException, ClassNotFoundException {
         User user = new User();
-        user.setId("testId123");
+        user.setId("testId1234");
         user.setName("testName");
         user.setPassword("testPass");
 
