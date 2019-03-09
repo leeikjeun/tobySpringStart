@@ -4,6 +4,7 @@ import springbook.user.domain.User;
 
 import javax.sql.DataSource;
 import java.sql.*;
+import java.util.jar.JarEntry;
 
 /**
  * Created by adaeng on 2019. 3. 7..
@@ -15,10 +16,10 @@ import java.sql.*;
 
 public class UserDao {
 
-    DataSource dataSource;
+    JdbcContext jdbcContext;
 
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public void setJdbcContext(JdbcContext jdbcContext) {
+        this.jdbcContext = jdbcContext;
     }
 
     // 변하는것과 변하지 않는 것
@@ -31,7 +32,7 @@ public class UserDao {
             ps.setString(3,user.getPassword());
             return ps;
         };
-        jdbcContextWithStatementStrategy(strategy);
+        jdbcContext.jdbcContextWithStatementStrategy(strategy);
     }
 
     public User get(String id) throws ClassNotFoundException, SQLException {
@@ -41,7 +42,7 @@ public class UserDao {
             return ps;
         };
 
-        return getUserJdbcStatement(strategy);
+        return jdbcContext.getUserJdbcStatement(strategy);
     }
 
     public int getCount(){
@@ -50,7 +51,7 @@ public class UserDao {
             return ps;
         };
 
-        return getCountJdbcStatement(st);
+        return jdbcContext.getCountJdbcStatement(st);
     }
 
     public void deleteUser(String id){
@@ -60,7 +61,7 @@ public class UserDao {
             return ps;
         };
 
-        jdbcContextWithStatementStrategy(st);
+        jdbcContext.jdbcContextWithStatementStrategy(st);
     }
 
     public void deleteAll(){
@@ -68,130 +69,6 @@ public class UserDao {
             PreparedStatement ps = connetion.prepareStatement("DELETE FROM users");
             return ps;
         };
-        jdbcContextWithStatementStrategy(strategy);
+        jdbcContext.jdbcContextWithStatementStrategy(strategy);
     }
-
-    private User getUserJdbcStatement(StatementStrategy strategy) {
-        User user = null;
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            c = dataSource.getConnection();
-
-            ps = strategy.makeStatement(c);
-
-            rs = ps.executeQuery();
-            rs.next();
-
-            user = new User();
-            user.setId(rs.getString("id"));
-            user.setName(rs.getString("name"));
-            user.setPassword(rs.getString("password"));
-
-
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-
-        return user;
-    }
-
-    private int getCountJdbcStatement(StatementStrategy statementStratygy) {
-        int count = 0;
-        Connection c = null;
-        PreparedStatement ps = null;
-        ResultSet rs = null;
-        try {
-            c = dataSource.getConnection();
-            ps = statementStratygy.makeStatement(c);
-
-            rs = ps.executeQuery();
-            rs.next();
-
-            count = rs.getInt(1);
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-
-            if (rs != null) {
-                try {
-                    rs.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-        return count;
-    }
-
-    private void jdbcContextWithStatementStrategy(StatementStrategy statementStrategy) {
-        Connection c = null;
-        PreparedStatement ps = null;
-        try {
-            c = dataSource.getConnection();
-            ps = statementStrategy.makeStatement(c);
-            ps.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } finally {
-
-            if (ps != null) {
-                try {
-                    ps.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-            if (c != null) {
-                try {
-                    c.close();
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
-            }
-        }
-    }
-
-
-
-
-
 }
