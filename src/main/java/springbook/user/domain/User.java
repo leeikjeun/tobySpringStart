@@ -6,16 +6,18 @@ package springbook.user.domain;
 
 
 public class User {
-    //사용자 정보를 저장할 때는 자바빈 규약을 따르는 오브젝트를 이용하면 편리
 
-    /*
-    * 자바 빈이란
-    * 원래 비주얼 툴에서 조작 가능한 컴포넌트를 말함
-    * 자바의 주력 개발 플렛폼이 웹 기반의 엔터프라이즈 방식으로 바뀌면서 비주얼 컴포넌트로서 자바빈은 인기를 잃음
-    * 이제는 자바빈이라고 말하면 비주얼 컴포넌트를 말하는것이 아니라 두 가지 관례에 따른 오브젝트를 말함
-    * 1. 디폴트 생선자 : 파라미터가 없는 디폴트 생성자를 갖고 있어야 함
-    * 2. 프로퍼티 : 자바빈이 노출하는 이름을 가진 속성을 포로퍼티라고 한다(프로퍼티는 get set으로 접근함
-    * */
+    // 만약에 level이라는 서비스를 제공하기 위해 User에 레벨값을 넣을수 있으나 이경우에는
+    // 잘못된 레벨값이 들어가 문제를 이를킬수 있다
+    private static final int BASIC = 1;
+    private static final int SILVER = 2;
+    private static final int GOLD = 3;
+
+    int level;
+
+    public void setLevel(int level) {
+        this.level = level;
+    }
 
     private String id;
     private String name;
