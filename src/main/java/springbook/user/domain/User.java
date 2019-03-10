@@ -7,21 +7,14 @@ package springbook.user.domain;
 
 public class User {
 
-    // 만약에 level이라는 서비스를 제공하기 위해 User에 레벨값을 넣을수 있으나 이경우에는
-    // 잘못된 레벨값이 들어가 문제를 이를킬수 있다
-    private static final int BASIC = 1;
-    private static final int SILVER = 2;
-    private static final int GOLD = 3;
 
-    int level;
-
-    public void setLevel(int level) {
-        this.level = level;
-    }
 
     private String id;
     private String name;
     private String password;
+    private Level level;
+    private int login;
+    private int recommend;
 
     public String getId() {
         return id;
@@ -45,5 +38,29 @@ public class User {
 
     public void setPassword(String password) {
         this.password = password;
+    }
+
+    public Level getLevel() {
+        return level;
+    }
+
+    public void setLevel(Level level) {
+        this.level = level;
+    }
+
+    public int getLogin() {
+        return login;
+    }
+
+    public void setLogin(int login) {
+        this.login = login;
+    }
+
+    public int getRecommend() {
+        return recommend;
+    }
+
+    public void setRecommend(int recommend) {
+        this.recommend = recommend;
     }
 }

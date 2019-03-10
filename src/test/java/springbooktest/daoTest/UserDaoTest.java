@@ -13,6 +13,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
 import springbook.user.dao.UserDaoJdbc;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
@@ -34,10 +35,9 @@ public class UserDaoTest {
     @Test
     public void userGetTest() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
+
+
         userDao.add(user);
         User checkUser = userDao.get("testId123");
 
@@ -46,13 +46,21 @@ public class UserDaoTest {
         assertThat(user.getPassword(),is(checkUser.getPassword()));
     }
 
+    private User getUser(String id, String name, String pass, Level level, int login, int recommend) {
+        User user = new User();
+        user.setId(id);
+        user.setName(name);
+        user.setPassword(pass);
+        user.setLevel(level);
+        user.setLogin(login);
+        user.setRecommend(recommend);
+        return user;
+    }
+
     @Test
     public void userAddTest() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
 
         userDao.add(user);
     }
@@ -61,10 +69,7 @@ public class UserDaoTest {
     public void getCountTest() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
 
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
 
         User user2 = new User();
         user2.setId("testId1234");
@@ -83,15 +88,9 @@ public class UserDaoTest {
     public void deleteUser() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
 
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
 
-        User user2 = new User();
-        user2.setId("testId1234");
-        user2.setName("testName1");
-        user2.setPassword("testPass2");
+        User user2 = getUser("testId1234", "testName1", "testPass2", Level.SILVER, 20, 100);
 
         userDao.add(user);
         userDao.add(user2);
@@ -107,15 +106,9 @@ public class UserDaoTest {
     public void getAll() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
 
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
+        User user2 = getUser("testId1234", "testName1", "testPass2", Level.SILVER, 20, 100);
 
-        User user2 = new User();
-        user2.setId("testId1234");
-        user2.setName("testName1");
-        user2.setPassword("testPass2");
 
         userDao.add(user);
         userDao.add(user2);
@@ -135,10 +128,7 @@ public class UserDaoTest {
     public void update() throws SQLException, ClassNotFoundException {
         userDao.deleteAll();
 
-        User user = new User();
-        user.setId("testId123");
-        user.setName("testName");
-        user.setPassword("testPass");
+        User user = getUser("testId123","testName","testPass",Level.BASIC,1,0);
 
         userDao.add(user);
 
