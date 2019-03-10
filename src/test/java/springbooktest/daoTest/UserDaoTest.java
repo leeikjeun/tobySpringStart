@@ -9,9 +9,10 @@ import static org.hamcrest.MatcherAssert.assertThat;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.ApplicationContext;
 import org.springframework.context.support.GenericXmlApplicationContext;
-import springbook.user.dao.UserDao;
+import springbook.user.dao.UserDaoJdbc;
 import springbook.user.domain.User;
 
 import java.sql.SQLException;
@@ -19,15 +20,15 @@ import java.util.List;
 
 public class UserDaoTest {
 
-    UserDao userDao;
+    UserDaoJdbc userDao;
     ApplicationContext context;
 
     @Before
     public void setting(){
 //        context = new AnnotationConfigApplicationContext(DaoFactory.class);
-//        userDao = context.getBean("userDao", UserDao.class);
+//        userDao = context.getBean("userDao", UserDaoJdbc.class);
         context = new GenericXmlApplicationContext("applicationContext.xml");
-        userDao = context.getBean("userDao",UserDao.class);
+        userDao = context.getBean("userDao",UserDaoJdbc.class);
     }
 
     @Test

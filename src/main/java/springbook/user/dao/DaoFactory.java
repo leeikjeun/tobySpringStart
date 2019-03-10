@@ -15,8 +15,8 @@ import org.springframework.context.annotation.Configuration;
 public class DaoFactory {
 
     @Bean
-    public UserDao userDao(){
-        UserDao userDao = new UserDao();
+    public UserDaoJdbc userDao(){
+        UserDaoJdbc userDao = new UserDaoJdbc();
 //        userDao.setDataSource(connectionMaker());
         return userDao;
     }
