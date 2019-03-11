@@ -16,28 +16,40 @@ public class UserService {
         this.userDao = userDao;
     }
 
+
+    /*
+    *  현재 upgradeLevels의 문제점
+    *  1. if/elseif/else로 인해일기 불편
+    *  2. 레벨 변화단계와 업그레이드 조건 조건이 충족됐을 때 해야할 작업들이 섞여있다.
+    *  3. 플래그를 두고 이를 변경하고 마지막에 이를 확인해서 업데이트를 진행이 깔끔하지 않음
+    * */
     public void upgradeLevels(){
         List<User> users = userDao.getAll();
         for(User user : users){
-            Boolean changed = null;
-
-            if(user.getLevel() == Level.BASIC && user.getLogin() >= 50){
-                user.setLevel(Level.SILVER);
-                changed = true;
+            if(canUpgradeUser(user)){
+                upgradeLevel(user);
             }
-            else if(user.getLevel() == Level.SILVER && user.getRecommend() >= 30){
-                user.setLevel(Level.GOLD);
-                changed = true;
-            }
-            else if(user.getLevel() == Level.GOLD)
-                changed = false;
-            else
-                changed = false;
-
-            if(changed)
-                userDao.update(user);
         }
 
+    }
+
+    private void upgradeLevel(User user) {
+        if(user.getLevel() == Level.BASIC)
+            user.setLevel(Level.SILVER);
+        else if(user.getLevel() == Level.SILVER)
+            user.setLevel(Level.GOLD);
+
+        userDao.update(user);
+    }
+
+    private boolean canUpgradeUser(User user) {
+        Level currentLevel = user.getLevel();
+        switch (currentLevel){
+            case BASIC: return user.getLogin() >= 50;
+            case SILVER: return user.getRecommend() >= 30;
+            case GOLD: return false;
+            default: throw new IllegalArgumentException("unknow Level " + currentLevel);
+        }
     }
 
 
