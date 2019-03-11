@@ -12,6 +12,7 @@ import springbook.user.domain.Level;
 import springbook.user.domain.User;
 import springbook.user.service.UserService;
 
+import java.nio.channels.Pipe;
 import java.util.Arrays;
 import java.util.List;
 
@@ -66,10 +67,31 @@ public class UserServiceTest {
 
     }
 
+    @Test
+    public void userServiceAdd(){
+        userDao.deleteAll();
+
+        User userWithLevel = users.get(4);
+        User userWithOutLevel = users.get(0);
+        userWithOutLevel.setLevel(null);
+
+        userService.add(userWithLevel);
+        userService.add(userWithOutLevel);
+
+
+        User loadUserWithLevel = userDao.get(userWithLevel.getId());
+        User loadUserWithoutLevel = userDao.get(userWithOutLevel.getId());
+
+        assertThat(loadUserWithLevel.getLevel(), is(userWithLevel.getLevel()));
+        assertThat(loadUserWithoutLevel.getLevel(),is(userWithOutLevel.getLevel()));
+    }
+
     private void checkLevel(User user, Level level) {
         User updateUser = userDao.get(user.getId());
         assertThat(updateUser.getLevel(),is(level));
     }
+
+
 
 
 }
