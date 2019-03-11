@@ -34,11 +34,11 @@ public class UserService {
     }
 
     private void upgradeLevel(User user) {
-        if(user.getLevel() == Level.BASIC)
-            user.setLevel(Level.SILVER);
-        else if(user.getLevel() == Level.SILVER)
-            user.setLevel(Level.GOLD);
-
+        Level nextLevel = user.getLevel().getNextLevel();
+        if(nextLevel == null){
+            throw new IllegalStateException(nextLevel + "은 레벨업이 불가능 합니다");
+        }
+        user.setLevel(nextLevel);
         userDao.update(user);
     }
 
