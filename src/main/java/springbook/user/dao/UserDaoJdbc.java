@@ -2,6 +2,7 @@ package springbook.user.dao;
 
 import org.springframework.dao.DataAccessException;
 import org.springframework.jdbc.core.JdbcTemplate;
+import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
 import java.util.List;
@@ -24,15 +25,15 @@ public class UserDaoJdbc implements UserDao {
 
     // 변하는것과 변하지 않는 것
     public void add(User user){
-        String sql = "insert into users(id, name, password) VALUES (?,?,?)";
-        Object[] parms = new Object[]{user.getId(),user.getName(),user.getPassword()};
+        String sql = "insert into users(id, name, password,level,login,recommend) VALUES (?,?,?,?,?,?)";
+        Object[] parms = new Object[]{user.getId(),user.getName(),user.getPassword(),user.getLevel().intValue(),user.getLogin(),user.getRecommend()};
 
         this.jdbcTemplate.update(sql,parms);
     }
 
     public User get(String id){
 
-        String sql = "SELECT id, name, password FROM users WHERE id = ?";
+        String sql = "SELECT * FROM users WHERE id = ?";
         Object[] parms = new Object[]{id};
         User user1 = null;
         try {
@@ -41,6 +42,9 @@ public class UserDaoJdbc implements UserDao {
                user.setId(resultset.getString("id"));
                user.setName(resultset.getString("name"));
                user.setPassword(resultset.getString("password"));
+               user.setLevel(Level.valueOf(resultset.getInt("level")));
+               user.setLogin(resultset.getInt("login"));
+               user.setRecommend(resultset.getInt("recommend"));
                return user;
             });
         } catch (DataAccessException e) {
@@ -82,6 +86,9 @@ public class UserDaoJdbc implements UserDao {
            user.setId(resultSet.getString("id"));
            user.setName(resultSet.getString("name"));
            user.setPassword(resultSet.getString("password"));
+           user.setLevel(Level.valueOf(resultSet.getInt("level")));
+           user.setLogin(resultSet.getInt("login"));
+           user.setRecommend(resultSet.getInt("recommend"));
            return user;
         });
     }
@@ -90,8 +97,8 @@ public class UserDaoJdbc implements UserDao {
     public void update(User user) {
 //        UPDATE tablename SET filedA='456' WHERE test='123' LIMIT 10;
 
-        String sql = "UPDATE users set name = ?, password = ? where id = ?";
-        Object[] parms = new Object[]{user.getName(), user.getPassword(), user.getId()};
+        String sql = "UPDATE users set name = ?, password = ?, level = ?, login = ?, recommend = ? where id = ?";
+        Object[] parms = new Object[]{user.getName(), user.getPassword(), user.getLevel().intValue(), user.getLogin(),user.getRecommend(), user.getId()};
 
         jdbcTemplate.update(sql, parms);
     }
