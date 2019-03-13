@@ -34,11 +34,7 @@ public class UserService {
     }
 
     private void upgradeLevel(User user) {
-        Level nextLevel = user.getLevel().getNextLevel();
-        if(nextLevel == null){
-            throw new IllegalStateException(nextLevel + "은 레벨업이 불가능 합니다");
-        }
-        user.setLevel(nextLevel);
+        user.upgradeLevel();
         userDao.update(user);
     }
 
