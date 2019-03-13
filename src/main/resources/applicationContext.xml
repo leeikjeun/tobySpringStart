@@ -29,10 +29,19 @@
         <property name="userDao" ref="userDao" />
     </bean>
 
+    <bean id="userTestLevelUpgradePolicy" class="springbook.user.service.UserTestUpgradePolicy">
+        <property name="id" value="madnite1" />
+        <property name="userDao" ref="userDao" />
+    </bean>
 
     <bean id="userService" class="springbook.user.service.UserService">
         <property name="userDao" ref="userDao" />
         <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy" />
+    </bean>
+
+    <bean id="testUserService" class="springbook.user.service.TestUserService">
+        <property name="userDao" ref="userDao" />
+        <property name="userLevelUpgradePolicy" ref="userTestLevelUpgradePolicy" />
     </bean>
 
 </beans>

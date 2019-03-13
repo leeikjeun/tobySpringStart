@@ -10,6 +10,7 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
+import springbook.user.service.TestUserService;
 import springbook.user.service.UserService;
 
 import java.nio.channels.Pipe;
@@ -19,6 +20,7 @@ import java.util.List;
 import static org.hamcrest.CoreMatchers.is;
 import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
+import static org.junit.Assert.fail;
 import static springbook.user.service.UserBasicUPgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserBasicUPgradePolicy.MIN_RECCOMEND_FOR_GOLD;
 
@@ -34,6 +36,9 @@ public class UserServiceTest {
 
     @Autowired
     UserService userService;
+
+    @Autowired
+    TestUserService testUserService;
 
     @Autowired
     UserDao userDao;
@@ -88,6 +93,22 @@ public class UserServiceTest {
 
         assertThat(loadUserWithLevel.getLevel(), is(userWithLevel.getLevel()));
         assertThat(loadUserWithoutLevel.getLevel(),is(userWithOutLevel.getLevel()));
+    }
+
+    @Test
+    public void upgradeAllOrNothing(){
+        userDao.deleteAll();
+        for(User user : users)
+            userDao.update(user);
+
+        try {
+            testUserService.upgradeLevels();
+//            fail("TestUserServiceException expected");
+        }catch (Exception e){
+
+        }
+
+        checkLevel(users.get(1),false);
     }
 
     private void checkLevel(User user, boolean upgrade) {
