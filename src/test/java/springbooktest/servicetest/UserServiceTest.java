@@ -14,6 +14,7 @@ import springbook.user.service.TestUserService;
 import springbook.user.service.UserService;
 
 import java.nio.channels.Pipe;
+import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
 
@@ -59,7 +60,7 @@ public class UserServiceTest {
     // 업그레디드 된 경우를 테스트하려는 것인지 쉽게 파악이 안됨
     // 좀더 이해하기 쉽게 true false로 변경
     @Test
-    public void levelUpdateTest(){
+    public void levelUpdateTest() throws SQLException {
         userDao.deleteAll();
 
         for(User user : users)
@@ -99,7 +100,7 @@ public class UserServiceTest {
     public void upgradeAllOrNothing(){
         userDao.deleteAll();
         for(User user : users)
-            userDao.update(user);
+            userDao.add(user);
 
         try {
             testUserService.upgradeLevels();
