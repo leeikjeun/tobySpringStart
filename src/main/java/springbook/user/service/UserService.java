@@ -1,11 +1,8 @@
 package springbook.user.service;
 
-import org.springframework.jdbc.datasource.DataSourceTransactionManager;
-import org.springframework.jdbc.datasource.DataSourceUtils;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
-import org.springframework.transaction.support.TransactionSynchronizationManager;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -26,11 +23,10 @@ public class UserService {
 
     private UserDao userDao;
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
-    private DataSource dataSource;
+    private PlatformTransactionManager transactionManager;
 
-
-    public void setDataSource(DataSource dataSource) {
-        this.dataSource = dataSource;
+    public void setTransactionManager(PlatformTransactionManager transactionManager) {
+        this.transactionManager = transactionManager;
     }
 
     public void setUserDao(UserDao userDao) {
@@ -42,10 +38,8 @@ public class UserService {
     }
 
     public void upgradeLevels() throws SQLException {
-        PlatformTransactionManager transactionManager =
-                new DataSourceTransactionManager(dataSource);
-
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
+
         try {
             List<User> users = userDao.getAll();
             for(User user : users){
