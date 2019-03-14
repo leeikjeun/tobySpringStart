@@ -1,6 +1,8 @@
 package springbook.user.service;
 
 import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
+import org.springframework.mail.javamail.JavaMailSenderImpl;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -48,21 +50,15 @@ public class UserBasicUPgradePolicy implements UserLevelUpgradePolicy {
     }
 
     private void sendUpgradeEmail(User user) {
-        Properties props = new Properties();
-        props.put("mail.smtp.host","mail.ksug.org");
-        Session s = Session.getInstance(props, null);
+        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
+        mailSender.setHost("mail.server.com");
 
-        MimeMessage message = new MimeMessage(s);
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getId());
+        mailMessage.setFrom("useradmin@ksung.org");
+        mailMessage.setSubject("Upgrade 안내");
+        mailMessage.setText("사용자 등급 업그레이드 됨");
 
-        try {
-            message.setFrom(new InternetAddress("useradmin@ksung.org"));
-            message.addRecipient(Message.RecipientType.TO, new InternetAddress(user.getId()));
-            message.setSubject("Upgrade 안내");
-            message.setText("사용자님의 등급이 " + user.getLevel().name() + "로 업그레이드 되었습니다");
-            Transport.send(message);
-        } catch (MessagingException e) {
-            e.printStackTrace();
-        }
-
+        mailSender.send(mailMessage);
     }
 }
