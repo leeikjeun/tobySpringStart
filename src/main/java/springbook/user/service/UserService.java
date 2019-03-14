@@ -1,6 +1,10 @@
 package springbook.user.service;
 
+import org.springframework.jdbc.datasource.DataSourceTransactionManager;
 import org.springframework.jdbc.datasource.DataSourceUtils;
+import org.springframework.transaction.PlatformTransactionManager;
+import org.springframework.transaction.TransactionStatus;
+import org.springframework.transaction.support.DefaultTransactionDefinition;
 import org.springframework.transaction.support.TransactionSynchronizationManager;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
@@ -8,7 +12,6 @@ import springbook.user.domain.User;
 
 
 import javax.naming.InitialContext;
-import javax.naming.NamingException;
 import javax.sql.DataSource;
 import java.sql.Connection;
 import java.sql.SQLException;
@@ -16,12 +19,8 @@ import java.util.List;
 
 /**
  * Created by adaeng on 11/03/2019.
- * 현재 밑의 트랜잭션 경계설정 코드는 기술과 환경에 종속된다.
- * 만약 여러개의 DB에 데이터를 넣은 작업을 해야한다면 한개 이상의 DB로의 작업을 하나의 트랜잭션으로 만드는건 불가능
- * 왜냐하면 JDBC의 Connection을 이용한 트랜잭션 방식은 로컬 트랜잭션이기 때문에
- * 로컬 트랜잭션은 하나의 DB 케넥션에 종속된다
- * 따라서 각 DB에 커넥션을 통해 만드는 것이 아니라 트랜잭션 관리자를 통해 글로벌 트랜잭션방식을 사용해야 한다.
- * 자바에서 제공하는 API JTA
+    하자만 문제는 하이버네이트를 이용한 트랜잭션 관리코드는 JDBC나 JTA의 코드와는 또 다르다
+    트랜잭션 경계설정 방법에서 공통점이 있고 이 공통점을 모아 추상화된 트랜잭션 관리 계층을 만들수 있다
  */
 public class UserService {
 
@@ -42,13 +41,11 @@ public class UserService {
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
 
-    public void upgradeLevels() throws SQLException, NamingException {
-        InitialContext ctx = new InitialContext();
-        UserTransaction tx = (UserTransaction)ctx.lookup("USER_TX_JNDI_NAME");
+    public void upgradeLevels() throws SQLException {
+        PlatformTransactionManager transactionManager =
+                new DataSourceTransactionManager(dataSource);
 
-        Connection c = DataSourceUtils.getConnection(dataSource);
-        c.setAutoCommit(false);
-
+        TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
         try {
             List<User> users = userDao.getAll();
             for(User user : users){
@@ -56,16 +53,10 @@ public class UserService {
                     userLevelUpgradePolicy.upgradeLevel(user);
                 }
             }
-            c.commit();
+            transactionManager.commit(status);
         } catch (Exception e) {
-            c.rollback();
+            transactionManager.rollback(status);
             throw e;
-        } finally {
-            //안전하게 DB커넥션을 닫는 과정
-            DataSourceUtils.releaseConnection(c,dataSource);
-            //동기화 제거 작업
-            TransactionSynchronizationManager.unbindResource(this.dataSource);
-            TransactionSynchronizationManager.clearSynchronization();
         }
     }
 
