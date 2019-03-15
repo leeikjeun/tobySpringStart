@@ -12,6 +12,7 @@ import springbook.user.domain.Level;
 import springbook.user.domain.User;
 import springbook.user.service.TestUserService;
 import springbook.user.service.UserService;
+import springbook.user.service.mail.DumyMailSender;
 
 import java.nio.channels.Pipe;
 import java.sql.SQLException;
@@ -75,6 +76,12 @@ public class UserServiceTest {
         checkLevel(users.get(3),true);
         checkLevel(users.get(4),false);
 
+        DumyMailSender mailSender = (DumyMailSender) userService.getMailSender();
+        List<String> request = mailSender.getRequests();
+
+        assertThat(request.size() , is(2));
+        assertThat(request.get(0), is(users.get(1).getId()));
+        assertThat(request.get(1), is(users.get(3).getId()));
     }
 
     @Test

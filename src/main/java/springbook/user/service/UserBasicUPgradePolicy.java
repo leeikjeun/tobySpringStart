@@ -46,19 +46,5 @@ public class UserBasicUPgradePolicy implements UserLevelUpgradePolicy {
     public void upgradeLevel(User user) {
         user.upgradeLevel();
         userDao.update(user);
-        sendUpgradeEmail(user);
-    }
-
-    private void sendUpgradeEmail(User user) {
-        JavaMailSenderImpl mailSender = new JavaMailSenderImpl();
-        mailSender.setHost("mail.server.com");
-
-        SimpleMailMessage mailMessage = new SimpleMailMessage();
-        mailMessage.setTo(user.getId());
-        mailMessage.setFrom("useradmin@ksung.org");
-        mailMessage.setSubject("Upgrade 안내");
-        mailMessage.setText("사용자 등급 업그레이드 됨");
-
-        mailSender.send(mailMessage);
     }
 }

@@ -38,6 +38,7 @@
         <property name="userDao" ref="userDao" />
         <property name="transactionManager" ref="JTATransactionManager" />
         <property name="userLevelUpgradePolicy" ref="userLevelUpgradePolicy" />
+        <property name="mailSender" ref="mailSender" />
     </bean>
 
     <bean id="JTATransactionManager" class="org.springframework.jdbc.datasource.DataSourceTransactionManager">
@@ -47,6 +48,10 @@
     <bean id="testUserService" class="springbook.user.service.TestUserService">
         <property name="userDao" ref="userDao" />
         <property name="userLevelUpgradePolicy" ref="userTestLevelUpgradePolicy" />
+    </bean>
+
+    <bean id="mailSender" class="springbook.user.service.mail.DumyMailSender">
+        <property name="host" value="mail.server.com" />
     </bean>
 
 </beans>

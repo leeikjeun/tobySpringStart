@@ -1,5 +1,7 @@
 package springbook.user.service;
 
+import org.springframework.mail.MailSender;
+import org.springframework.mail.SimpleMailMessage;
 import org.springframework.transaction.PlatformTransactionManager;
 import org.springframework.transaction.TransactionStatus;
 import org.springframework.transaction.support.DefaultTransactionDefinition;
@@ -7,10 +9,6 @@ import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 
-
-import javax.naming.InitialContext;
-import javax.sql.DataSource;
-import java.sql.Connection;
 import java.sql.SQLException;
 import java.util.List;
 
@@ -27,6 +25,7 @@ public class UserService {
     private UserDao userDao;
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
     private PlatformTransactionManager transactionManager;
+    private MailSender mailSender;
 
     public void setTransactionManager(PlatformTransactionManager transactionManager) {
         this.transactionManager = transactionManager;
@@ -40,6 +39,14 @@ public class UserService {
         this.userLevelUpgradePolicy = userLevelUpgradePolicy;
     }
 
+    public void setMailSender(MailSender mailSender) {
+        this.mailSender = mailSender;
+    }
+
+    public MailSender getMailSender() {
+        return mailSender;
+    }
+
     public void upgradeLevels() throws SQLException {
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
@@ -48,6 +55,7 @@ public class UserService {
             for(User user : users){
                 if(userLevelUpgradePolicy.canUpgradeUser(user)){
                     userLevelUpgradePolicy.upgradeLevel(user);
+                    sendUpgradeEmail(user);
                 }
             }
             transactionManager.commit(status);
@@ -60,5 +68,15 @@ public class UserService {
     public void add(User user) {
         if(user.getLevel() == null) user.setLevel(Level.BASIC);
         userDao.add(user);
+    }
+
+    private void sendUpgradeEmail(User user) {
+        SimpleMailMessage mailMessage = new SimpleMailMessage();
+        mailMessage.setTo(user.getId());
+        mailMessage.setFrom("useradmin@ksung.org");
+        mailMessage.setSubject("Upgrade 안내");
+        mailMessage.setText("사용자 등급 업그레이드 됨");
+
+        mailSender.send(mailMessage);
     }
 }
