@@ -14,11 +14,8 @@ import java.util.List;
 
 /**
  * Created by adaeng on 11/03/2019.
-    현재 UserServices는 트랜잭션과 서비스 2가지 책임을 가지고 있다.
-    단일 책임 원칙에 어긋남
-    단일 책임 원칙 지켰을 경우 좋은점
-    1. 어떤 병경이 필요할 때 수정 대상이 명확해진다
-    이건 좀 나중에 고침
+
+
  */
 public class UserService {
 
@@ -51,17 +48,21 @@ public class UserService {
         TransactionStatus status = transactionManager.getTransaction(new DefaultTransactionDefinition());
 
         try {
-            List<User> users = userDao.getAll();
-            for(User user : users){
-                if(userLevelUpgradePolicy.canUpgradeUser(user)){
-                    userLevelUpgradePolicy.upgradeLevel(user);
-                    sendUpgradeEmail(user);
-                }
-            }
+            upgradeLevelsInternal();
             transactionManager.commit(status);
         } catch (Exception e) {
             transactionManager.rollback(status);
             throw e;
+        }
+    }
+
+    private void upgradeLevelsInternal() {
+        List<User> users = userDao.getAll();
+        for(User user : users){
+            if(userLevelUpgradePolicy.canUpgradeUser(user)){
+                userLevelUpgradePolicy.upgradeLevel(user);
+                sendUpgradeEmail(user);
+            }
         }
     }
 
