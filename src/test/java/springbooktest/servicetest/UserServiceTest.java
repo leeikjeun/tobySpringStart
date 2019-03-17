@@ -4,15 +4,15 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import springbook.user.dao.MockUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 import springbook.user.service.TestUserService;
+import springbook.user.service.UserBasicUPgradePolicy;
 import springbook.user.service.UserSerivceImpl;
-import springbook.user.service.UserService;;
 import springbook.user.service.UserServiceTx;
 import springbook.user.service.mail.DumyMailSender;
 
@@ -21,9 +21,7 @@ import java.util.Arrays;
 import java.util.List;
 
 import static org.hamcrest.CoreMatchers.is;
-import static org.hamcrest.CoreMatchers.notNullValue;
 import static org.junit.Assert.assertThat;
-import static org.junit.Assert.fail;
 import static springbook.user.service.UserBasicUPgradePolicy.MIN_LOGCOUNT_FOR_SILVER;
 import static springbook.user.service.UserBasicUPgradePolicy.MIN_RECCOMEND_FOR_GOLD;
 
@@ -39,8 +37,6 @@ public class UserServiceTest {
 
     @Autowired
     UserServiceTx userServiceTx;
-
-    TestUserService testUserService;
 
     @Autowired
     UserDao userDao;
@@ -66,26 +62,30 @@ public class UserServiceTest {
     // 좀더 이해하기 쉽게 true false로 변경
     @Test
     public void levelUpdateTest() throws SQLException {
-        userDao.deleteAll();
+        UserSerivceImpl userSerivceImpl = new UserSerivceImpl();
 
-        for(User user : users)
-            userDao.add(user);
+        MockUserDao userDao = new MockUserDao(this.users);
+        userSerivceImpl.setUserDao(userDao);
 
+        DumyMailSender dumyMailSender = new DumyMailSender();
+        userSerivceImpl.setMailSender(dumyMailSender);
 
-        userServiceTx.upgradeLevels();
+        UserBasicUPgradePolicy userBasicUPgradePolicy = new UserBasicUPgradePolicy();
+        userBasicUPgradePolicy.setUserDao(userDao);
+        userSerivceImpl.setUserLevelUpgradePolicy(userBasicUPgradePolicy);
+        
+        userSerivceImpl.upgradeLevels();
 
-        checkLevel(users.get(0),false);
-        checkLevel(users.get(1),true);
-        checkLevel(users.get(2),false);
-        checkLevel(users.get(3),true);
-        checkLevel(users.get(4),false);
+        List<User> updated = userDao.getUpdated();
+        assertThat(updated.size(), is(2));
 
-//        DumyMailSender mailSender = (DumyMailSender) userServiceTx.getMailSender();
-//        List<String> request = mailSender.getRequests();
-//
-//        assertThat(request.size() , is(2));
-//        assertThat(request.get(0), is(users.get(1).getId()));
-//        assertThat(request.get(1), is(users.get(3).getId()));
+        checkUserLevel(updated.get(0),"joytouch",Level.SILVER);
+        checkUserLevel(updated.get(1),"madnite1",Level.GOLD);
+    }
+
+    private void checkUserLevel(User user, String expectId, Level expectLevel) {
+        assertThat(user.getId(),is(expectId));
+        assertThat(user.getLevel(),is(expectLevel));
     }
 
     @Test
@@ -114,21 +114,9 @@ public class UserServiceTest {
             userDao.add(user);
 
         try {
-            testUserService.upgradeLevels();
 //            fail("TestUserServiceException expected");
         }catch (Exception e){
 
-        }
-
-        checkLevel(users.get(1),false);
-    }
-
-    private void checkLevel(User user, boolean upgrade) {
-        User userUpgrade = userDao.get(user.getId());
-        if(upgrade){
-            assertThat(userUpgrade.getLevel(),is(user.getLevel().getNextLevel()));
-        }else{
-            assertThat(userUpgrade.getLevel(),is(user.getLevel()));
         }
     }
 

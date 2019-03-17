@@ -21,8 +21,6 @@ public class UserSerivceImpl implements UserService {
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
     private MailSender mailSender;
 
-
-
     public void setUserDao(UserDao userDao) {
         this.userDao = userDao;
     }
