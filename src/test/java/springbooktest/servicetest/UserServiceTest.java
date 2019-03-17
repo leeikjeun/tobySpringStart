@@ -73,7 +73,7 @@ public class UserServiceTest {
         UserBasicUPgradePolicy userBasicUPgradePolicy = new UserBasicUPgradePolicy();
         userBasicUPgradePolicy.setUserDao(userDao);
         userSerivceImpl.setUserLevelUpgradePolicy(userBasicUPgradePolicy);
-        
+
         userSerivceImpl.upgradeLevels();
 
         List<User> updated = userDao.getUpdated();
