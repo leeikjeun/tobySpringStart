@@ -2,9 +2,6 @@ package springbook.user.service;
 
 import org.springframework.mail.MailSender;
 import org.springframework.mail.SimpleMailMessage;
-import org.springframework.transaction.PlatformTransactionManager;
-import org.springframework.transaction.TransactionStatus;
-import org.springframework.transaction.support.DefaultTransactionDefinition;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
@@ -62,5 +59,22 @@ public class UserSerivceImpl implements UserService {
         mailMessage.setText("사용자 등급 업그레이드 됨");
 
         mailSender.send(mailMessage);
+    }
+
+    /**
+     * Created by adaeng on 18/03/2019.
+     */
+    public static class UserTestUpGradePolicy implements UserLevelUpgradePolicy{
+
+
+        @Override
+        public boolean canUpgradeUser(User user) {
+            return false;
+        }
+
+        @Override
+        public void upgradeLevel(User user) {
+
+        }
     }
 }

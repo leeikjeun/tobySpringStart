@@ -6,16 +6,16 @@ import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
+import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.MockUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
-import springbook.user.service.TestUserService;
-import springbook.user.service.UserBasicUPgradePolicy;
-import springbook.user.service.UserSerivceImpl;
-import springbook.user.service.UserServiceTx;
+import springbook.user.service.*;
 import springbook.user.service.mail.DumyMailSender;
+import springbook.user.service.proxy.TransactionHandler;
 
+import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -42,6 +42,10 @@ public class UserServiceTest {
     UserDao userDao;
 
     List<User> users;
+
+    @Autowired
+    TestUserService testUserService;
+
 
     @Before
     public void userSetting(){
@@ -107,17 +111,38 @@ public class UserServiceTest {
         assertThat(loadUserWithoutLevel.getLevel(),is(userWithOutLevel.getLevel()));
     }
 
-    @Test
-    public void upgradeAllOrNothing(){
+    @Autowired
+    PlatformTransactionManager transactionManager;
+
+    @Test(expected = RuntimeException.class)
+    public void upgradeAllOrNothing() throws SQLException {
         userDao.deleteAll();
-        for(User user : users)
+
+        for(User user : users){
             userDao.add(user);
-
-        try {
-//            fail("TestUserServiceException expected");
-        }catch (Exception e){
-
         }
+
+        TransactionHandler txHandler = new TransactionHandler();
+        txHandler.setTarget(testUserService);
+        txHandler.setPattern("upgradeLevels");
+        txHandler.setTransactionManager(transactionManager);
+
+        UserService txUserService = (UserService) Proxy.newProxyInstance(
+                getClass().getClassLoader(), new Class[]{UserService.class}, txHandler
+        );
+
+        txUserService.upgradeLevels();
+//        checkUserLevel(User user, String expectId, Level expectLevel) {
+
+
+        List<User> testUser = userDao.getAll();
+
+        for(int i = 0; i < 4; i++){
+            assertThat(testUser.get(i).getLevel(), is(users.get(i).getLevel()));
+        }
+
     }
+
+
 
 }

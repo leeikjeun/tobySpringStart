@@ -41,4 +41,19 @@
         <property name="host" value="mail.server.com" />
     </bean>
 
+    <!--private UserDao userDao;-->
+    <!--private UserLevelUpgradePolicy userLevelUpgradePolicy;-->
+    <!--private MailSender mailSender;-->
+
+    <bean id="testUserService" class="springbook.user.service.TestUserService">
+        <property name="userDao" ref="userDao" />
+        <property name="mailSender" ref="mailSender" />
+        <property name="userLevelUpgradePolicy" ref="userTestUpgradePolicy" />
+    </bean>
+
+    <bean id="userTestUpgradePolicy" class="springbook.user.service.UserTestUpgradePolicy">
+        <property name="id" value="madnite1" />
+        <property name="userDao" ref="userDao" />
+    </bean>
+
 </beans>
