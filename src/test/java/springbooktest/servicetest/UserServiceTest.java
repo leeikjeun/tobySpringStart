@@ -4,6 +4,8 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Qualifier;
+import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.transaction.PlatformTransactionManager;
@@ -35,8 +37,11 @@ import static springbook.user.service.UserBasicUPgradePolicy.MIN_RECCOMEND_FOR_G
 @ContextConfiguration(locations = "/applicationContext.xml")
 public class UserServiceTest {
 
+
     @Autowired
-    UserServiceTx userServiceTx;
+    ApplicationContext context;
+
+    UserService userService;
 
     @Autowired
     UserDao userDao;
@@ -57,7 +62,7 @@ public class UserServiceTest {
                 new User("green","oh","p5", Level.GOLD,100,100)
         );
 
-
+        userService = context.getBean("userService",UserService.class);
     }
 
 
@@ -100,8 +105,8 @@ public class UserServiceTest {
         User userWithOutLevel = users.get(0);
         userWithOutLevel.setLevel(null);
 
-        userServiceTx.add(userWithLevel);
-        userServiceTx.add(userWithOutLevel);
+        userService.add(userWithLevel);
+        userService.add(userWithOutLevel);
 
 
         User loadUserWithLevel = userDao.get(userWithLevel.getId());
