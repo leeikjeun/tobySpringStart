@@ -66,7 +66,6 @@ public class UserSerivceImpl implements UserService {
      */
     public static class UserTestUpGradePolicy implements UserLevelUpgradePolicy{
 
-
         @Override
         public boolean canUpgradeUser(User user) {
             return false;

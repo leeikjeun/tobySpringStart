@@ -1,8 +1,13 @@
 package springbooktest.learningtest.jdk;
 
+import org.aopalliance.aop.Advice;
+import org.aopalliance.intercept.MethodInterceptor;
+import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import org.springframework.aop.framework.ProxyFactoryBean;
+import org.springframework.aop.support.DefaultPointcutAdvisor;
+import org.springframework.aop.support.NameMatchMethodPointcut;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.lang.reflect.Proxy;
 
@@ -57,4 +62,32 @@ public class ReflectionTest {
     }
 
 
+    @Test
+    public void proxyFactroyBean(){
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(new HelloTarget());
+
+
+        NameMatchMethodPointcut pointcut = new NameMatchMethodPointcut();
+        pointcut.setMappedName("sayH");
+        DefaultPointcutAdvisor advisor = new DefaultPointcutAdvisor(pointcut,new UppercaseAdvice());
+
+        pfBean.addAdvice(advisor.getAdvice());
+
+        Hello proxieHello = (Hello) pfBean.getObject();
+
+        assertThat(proxieHello.sayHello("to"),is("HELLO TO"));
+        assertThat(proxieHello.sayHi("to"),is("HI TO"));
+        assertThat(proxieHello.sayThankU("to"),is("THANK U TO"));
+    }
+
+
+    static class UppercaseAdvice implements MethodInterceptor {
+
+        @Override
+        public Object invoke(MethodInvocation invocation) throws Throwable {
+            String ret = (String)invocation.proceed();//리플렉션의 메소드와 달리 메소드 실행 시 타깃 오브젝트를 전달할 필요가 없다
+            return ret.toUpperCase();
+        }
+    }
 }

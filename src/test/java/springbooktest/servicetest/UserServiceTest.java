@@ -51,7 +51,6 @@ public class UserServiceTest {
     @Autowired
     TestUserService testUserService;
 
-
     @Before
     public void userSetting(){
         users = Arrays.asList(
