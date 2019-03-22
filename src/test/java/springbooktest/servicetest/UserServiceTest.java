@@ -8,16 +8,13 @@ import org.springframework.beans.factory.annotation.Qualifier;
 import org.springframework.context.ApplicationContext;
 import org.springframework.test.context.ContextConfiguration;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
-import org.springframework.transaction.PlatformTransactionManager;
 import springbook.user.dao.MockUserDao;
 import springbook.user.dao.UserDao;
 import springbook.user.domain.Level;
 import springbook.user.domain.User;
 import springbook.user.service.*;
 import springbook.user.service.mail.DumyMailSender;
-import springbook.user.service.proxy.TransactionHandler;
 
-import java.lang.reflect.Proxy;
 import java.sql.SQLException;
 import java.util.Arrays;
 import java.util.List;
@@ -41,6 +38,7 @@ public class UserServiceTest {
     @Autowired
     ApplicationContext context;
 
+    @Autowired
     UserService userService;
 
     @Autowired
@@ -49,7 +47,7 @@ public class UserServiceTest {
     List<User> users;
 
     @Autowired
-    TestUserService testUserService;
+    UserService testUserService;
 
     @Before
     public void userSetting(){
@@ -60,8 +58,6 @@ public class UserServiceTest {
                 new User("madnite1","lee","p4", Level.SILVER,60,MIN_RECCOMEND_FOR_GOLD),
                 new User("green","oh","p5", Level.GOLD,100,100)
         );
-
-        userService = context.getBean("userService",UserService.class);
     }
 
 
@@ -70,7 +66,7 @@ public class UserServiceTest {
     // 좀더 이해하기 쉽게 true false로 변경
     @Test
     public void levelUpdateTest() throws SQLException {
-        UserSerivceImpl userSerivceImpl = new UserSerivceImpl();
+        UserServiceImpl userSerivceImpl = new UserServiceImpl();
 
         MockUserDao userDao = new MockUserDao(this.users);
         userSerivceImpl.setUserDao(userDao);
@@ -115,9 +111,6 @@ public class UserServiceTest {
         assertThat(loadUserWithoutLevel.getLevel(),is(userWithOutLevel.getLevel()));
     }
 
-    @Autowired
-    PlatformTransactionManager transactionManager;
-
     @Test(expected = RuntimeException.class)
     public void upgradeAllOrNothing() throws SQLException {
         userDao.deleteAll();
@@ -126,16 +119,7 @@ public class UserServiceTest {
             userDao.add(user);
         }
 
-        TransactionHandler txHandler = new TransactionHandler();
-        txHandler.setTarget(testUserService);
-        txHandler.setPattern("upgradeLevels");
-        txHandler.setTransactionManager(transactionManager);
-
-        UserService txUserService = (UserService) Proxy.newProxyInstance(
-                getClass().getClassLoader(), new Class[]{UserService.class}, txHandler
-        );
-
-        txUserService.upgradeLevels();
+        testUserService.upgradeLevels();
 //        checkUserLevel(User user, String expectId, Level expectLevel) {
 
 

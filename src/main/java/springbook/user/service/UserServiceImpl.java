@@ -12,7 +12,7 @@ import java.util.List;
 /**
  * Created by adaeng on 15/03/2019.
  */
-public class UserSerivceImpl implements UserService {
+public class UserServiceImpl implements UserService {
 
     private UserDao userDao;
     private UserLevelUpgradePolicy userLevelUpgradePolicy;
