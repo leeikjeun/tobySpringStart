@@ -7,6 +7,9 @@ import java.lang.reflect.Proxy;
 
 /**
  * Created by adaeng on 18/03/2019.
+ * 프록시 팩토리 빈의 한계
+ * 1. 부가기능이 타켓 오브젝트마다 새로 만들어지는 문제는 스프링의 ProxyFactoryBean의 어드바이저를 통해 해결
+ * 2. 부가기능의 적용이 필요한 타킷 오브젝트마다 거의 비슷한 내용의 빈 설정정보를 추가해주는 부분이 문제이닷
  */
 public class TxProxyFactoryBean implements FactoryBean<Object> {
     private Object target;

@@ -16,6 +16,6 @@ public class HelloTarget implements Hello {
 
     @Override
     public String sayThankU(String name) {
-        return "Thank U " + name;
+        return "Thank u " + name;
     }
 }

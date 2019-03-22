@@ -4,6 +4,8 @@ import org.aopalliance.aop.Advice;
 import org.aopalliance.intercept.MethodInterceptor;
 import org.aopalliance.intercept.MethodInvocation;
 import org.junit.Test;
+import org.springframework.aop.ClassFilter;
+import org.springframework.aop.Pointcut;
 import org.springframework.aop.framework.ProxyFactoryBean;
 import org.springframework.aop.support.DefaultPointcutAdvisor;
 import org.springframework.aop.support.NameMatchMethodPointcut;
@@ -39,7 +41,7 @@ public class ReflectionTest {
         Hello hello = new HelloTarget();
         assertThat(hello.sayHello("to"),is("Hello to"));
         assertThat(hello.sayHi("to"),is("Hi to"));
-        assertThat(hello.sayThankU("to"),is("Thank U to"));
+        assertThat(hello.sayThankU("to"),is("Thank u to"));
 
         HelloUppercase helloUppercase = new HelloUppercase(hello); // 정적인 프록시
         assertThat(helloUppercase.sayHello("to"),is("HELLO TO"));
@@ -80,6 +82,51 @@ public class ReflectionTest {
         assertThat(proxieHello.sayHi("to"),is("HI TO"));
         assertThat(proxieHello.sayThankU("to"),is("THANK U TO"));
     }
+
+    @Test
+    public void classNamePointcutAdvisor(){
+
+        NameMatchMethodPointcut classMAethodPointcut = new NameMatchMethodPointcut() {
+            @Override
+            public ClassFilter getClassFilter(){
+                return new ClassFilter() {
+                    @Override
+                    public boolean matches(Class<?> aClass) {
+                        return aClass.getSimpleName().startsWith("HelloT");
+                    }
+                };
+            }
+        };
+
+        classMAethodPointcut.setMappedName("sayH*");
+
+        checkAdviced(new HelloTarget(), classMAethodPointcut, true);
+
+        class HelloWorld extends HelloTarget {};
+        checkAdviced(new HelloWorld(), classMAethodPointcut, false);
+
+        class HelloToby extends HelloTarget{};
+        checkAdviced(new HelloToby(), classMAethodPointcut, true);
+
+    }
+
+    private void checkAdviced(Object target, Pointcut pointcut, boolean adviced){
+        ProxyFactoryBean pfBean = new ProxyFactoryBean();
+        pfBean.setTarget(target);
+        pfBean.addAdvisor(new DefaultPointcutAdvisor(pointcut,new UppercaseAdvice()));
+        Hello proxiedHello = (Hello) pfBean.getObject();
+
+        if(adviced){
+            assertThat(proxiedHello.sayHello("to"),is("HELLO TO"));
+            assertThat(proxiedHello.sayHi("to"),is("HI TO"));
+            assertThat(proxiedHello.sayThankU("to"),is("Thank u to"));
+        }else{
+            assertThat(proxiedHello.sayHello("to"),is("Hello to"));
+            assertThat(proxiedHello.sayHi("to"),is("Hi to"));
+            assertThat(proxiedHello.sayThankU("to"),is("Thank u to"));
+        }
+    }
+
 
 
     static class UppercaseAdvice implements MethodInterceptor {
