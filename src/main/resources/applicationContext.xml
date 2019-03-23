@@ -1,7 +1,34 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <beans xmlns="http://www.springframework.org/schema/beans"
+       xmlns:aop="http://www.springframework.org/schema/aop"
        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:util="http://www.springframework.org/schema/util"
-       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd">
+       xsi:schemaLocation="http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/util
+        http://www.springframework.org/schema/util/spring-util.xsd"
+
+>
+
+    <!--<aop:config>-->
+        <!--<aop:pointcut id="transactionPointcut"-->
+                      <!--expression="execution(* *..*ServiceImpl.upgrade*(..))" />-->
+        <!--<aop:advisor advice-ref="transactionAdvice" pointcut-ref="transactionPointcut" />-->
+    <!--</aop:config>-->
+
+    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
+
+    <bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor" >
+        <property name="advice" ref="transactionAdvice" />
+        <property name="pointcut" ref="transactionPointcut" />
+    </bean>
+
+    <bean id="transactionAdvice" class="springbook.user.service.advice.TransactionAdvice">
+        <property name="transactionManager" ref="JTATransactionManager" />
+    </bean>
+
+    <bean id="transactionPointcut" class="springbook.user.service.proxy.NameMatchClassMethodPointcut">
+        <property name="mappedName" value="upgrade*" />
+        <property name="mappedClassName" value="*ServiceImpl" />
+    </bean>
 
     <bean id="userDao" class="springbook.user.dao.UserDaoJdbc">
         <property name="jdbcTemplate" ref="jdbcTemplate" />
@@ -36,21 +63,11 @@
         <property name="host" value="mail.server.com" />
     </bean>
 
-    <bean id="transactionAdvisor" class="org.springframework.aop.support.DefaultPointcutAdvisor" >
-        <property name="advice" ref="transactionAdvice" />
-        <property name="pointcut" ref="transactionPointcut" />
-    </bean>
+    <!--자동 프록시를 할때에는 받는 객체에 대해서는 항상 인터페이스로 받아야 한다
+    예) UserService userservice 옳은 방식
+        UserServiceImpl userService 틀린 방식
+     -->
 
-    <bean id="transactionAdvice" class="springbook.user.service.advice.TransactionAdvice">
-        <property name="transactionManager" ref="JTATransactionManager" />
-    </bean>
-
-    <bean id="transactionPointcut" class="springbook.user.service.proxy.NameMatchClassMethodPointcut">
-        <property name="mappedName" value="upgrade*" />
-        <property name="mappedClassName" value="*ServiceImpl" />
-    </bean>
-
-    <bean class="org.springframework.aop.framework.autoproxy.DefaultAdvisorAutoProxyCreator" />
     <!--private UserDao userDao;-->
     <!--private UserLevelUpgradePolicy userLevelUpgradePolicy;-->
     <!--private MailSender mailSender;-->

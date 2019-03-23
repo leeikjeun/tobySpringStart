@@ -60,20 +60,4 @@ public class UserServiceImpl implements UserService {
 
         mailSender.send(mailMessage);
     }
-
-    /**
-     * Created by adaeng on 18/03/2019.
-     */
-    public static class UserTestUpGradePolicy implements UserLevelUpgradePolicy{
-
-        @Override
-        public boolean canUpgradeUser(User user) {
-            return false;
-        }
-
-        @Override
-        public void upgradeLevel(User user) {
-
-        }
-    }
 }
